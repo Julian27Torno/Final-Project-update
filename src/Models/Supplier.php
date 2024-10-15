@@ -9,7 +9,7 @@ class Supplier extends BaseModel
 {
     public function all()
     {
-        $sql = "SELECT * FROM suppliers";
+        $sql = "SELECT * FROM users";
         $statement = $this->db->prepare($sql);
         $statement->execute();
         $result = $statement->fetchAll(PDO::FETCH_CLASS, '\App\Models\Supplier');
