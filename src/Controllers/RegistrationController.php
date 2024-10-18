@@ -1,71 +1,85 @@
-<?php
+<?php 
+
 namespace App\Controllers;
 
 use App\Models\User;
-use Exception;
 
-class RegistrationController {
-    private $userModel;
-
-    public function __construct($db) {
-        $this->userModel = new User($db);
-    }
-
-    public function showRegistrationForm() {
-        include 'path/to/views/registration-form.php'; // Adjust the path accordingly
+class RegistrationController extends BaseController
+{
+    public function showForm() {
+        // Show the empty registration form with no errors
+        return $this->render('registration-form');
     }
 
     public function register() {
-        $username = $_POST['username'];
-        $email = $_POST['email'];
-        $firstName = $_POST['first_name'];
-        $lastName = $_POST['last_name'];
-        $password = $_POST['password'];
-        $passwordConfirmation = $_POST['password_confirmation'];
 
-        // Validation
-        $errors = $this->validateRegistration($username, $email, $password, $passwordConfirmation);
-
-        if (!empty($errors)) {
-            include 'path/to/views/registration-form.php'; // Show errors in the form
-            return;
-        }
-
-        // Register user
-        if ($this->userModel->register($username, $email, $firstName, $lastName, $password)) {
-            echo "Successful Registration. <a href='/login-form'>Login here</a>";
-        } else {
-            echo "Registration failed.";
-        }
-    }
-
-    private function validateRegistration($username, $email, $password, $passwordConfirmation) {
+        // Initialize errors array to store validation errors
         $errors = [];
-
-        if (empty($username) || empty($email) || empty($password) || empty($passwordConfirmation)) {
-            $errors[] = "All fields are required.";
+    
+        try {
+            // Retrieve form data
+            $username = $_POST['username'] ?? '';
+            $email = $_POST['email'] ?? '';
+            $first_name = $_POST['first_name'] ?? '';
+            $last_name = $_POST['last_name'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $password_confirmation = $_POST['confirm_password'] ?? '';
+    
+            // Required field check
+            if (empty($username) || empty($email) || empty($password) || empty($password_confirmation)) {
+                $errors[] = "All required fields must be filled out.";
+            }
+    
+            // Password length check
+            if (strlen($password) < 8) {
+                $errors[] = "Password must be at least 8 characters long.";
+            }
+    
+            // Numeric character check
+            if (!preg_match('/[0-9]/', $password)) {
+                $errors[] = "Password must contain at least one numeric character.";
+            }
+    
+            // Non-numeric character check
+            if (!preg_match('/[a-zA-Z]/', $password)) {
+                $errors[] = "Password must contain at least one non-numeric character.";
+            }
+    
+            // Special character check
+            if (!preg_match('/[\W]/', $password)) {
+                $errors[] = "Password must contain at least one special character (!@#$%^&*-+).";
+            }
+    
+            // Password confirmation check
+            if ($password !== $password_confirmation) {
+                $errors[] = "Passwords do not match.";
+            }
+    
+            // Check if there are any validation errors
+            if (!empty($errors)) {
+                // Render the registration form with errors
+                $data = [
+                    'errors' => $errors, // Errors passed to Registration-Form.Mustache template
+                    'username' => $username,
+                    'email' => $email,
+                    'first_name' => $first_name,
+                    'last_name' => $last_name
+                ];
+    
+                return $this->render('registration-form', $data);
+            }
+    
+            // If all checks pass, save the data using the User model
+            $user = new User();
+            $save_result = $user->save($username, $email, $first_name, $last_name, $password);
+    
+            if ($save_result > 0) {
+                return $this->render('registration-sucess'); // Registration success page
+            } else {
+                echo "There was an error during registration. Please try again.";
+            }
+        } catch (\Exception $e) {
+            echo "Error: " . $e->getMessage();
         }
-
-        if (strlen($password) < 8) {
-            $errors[] = "Password must be at least 8 characters.";
-        }
-
-        if (!preg_match('/[0-9]/', $password)) {
-            $errors[] = "Password must contain at least one numeric character.";
-        }
-
-        if (!preg_match('/[a-zA-Z]/', $password)) {
-            $errors[] = "Password must contain at least one non-numeric character.";
-        }
-
-        if (!preg_match('/[!@#$%^&*()+\-]/', $password)) {
-            $errors[] = "Password must contain at least one special character.";
-        }
-
-        if ($password !== $passwordConfirmation) {
-            $errors[] = "Passwords do not match.";
-        }
-
-        return $errors;
     }
 }

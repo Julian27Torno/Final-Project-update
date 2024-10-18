@@ -1,39 +1,99 @@
-<?php
+<?php 
+
 namespace App\Controllers;
 
 use App\Models\User;
 
-class LoginController {
-    private $userModel;
-
-    public function __construct($db) {
-        $this->userModel = new User($db);
-    }
-
-    public function showLoginForm() {
-        include 'path/to/views/login-form.php'; // Adjust the path accordingly
+class LoginController extends BaseController
+{
+    public function showForm() {
+        // Show the login form without errors
+        return $this->render('login-form');
     }
 
     public function login() {
-        // Check if the request method is POST
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'] ?? ''; // Use null coalescing to avoid undefined index
+        // Initialize an array to store validation errors
+        $errors = [];
+        
+        // Start session
+        session_start();
+
+        // Initialize login attempts if not set
+        if (!isset($_SESSION['login_attempts'])) {
+            $_SESSION['login_attempts'] = 0;
+        }
+
+        try {
+            // Retrieve form data
+            $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';
 
-            // Basic input validation
+            // Required field check
             if (empty($username) || empty($password)) {
-                echo "Please enter both username and password.";
-                return;
+                $errors[] = "Both fields are required.";
             }
 
-            if ($this->userModel->login($username, $password)) {
-                echo "Login successful!"; // Redirect to dashboard or homepage
-                // Consider using header() for redirection instead of echo
-            } else {
-                echo "Login failed. Invalid username or password.";
+            // Check for errors before processing
+            if (!empty($errors)) {
+                return $this->render('login-form', ['errors' => $errors, 'disabled' => $_SESSION['login_attempts'] >= 3]);
             }
-        } else {
-            echo "Invalid request method.";
+
+            // Validate credentials
+            $user = new User();
+            $hashedPassword = $user->getPassword($username); // Retrieve the hashed password
+
+            if ($hashedPassword && password_verify($password, $hashedPassword)) {
+                // Successful login
+                $_SESSION['is_logged_in'] = true; // Set login state
+                $_SESSION['user_id'] = $username; // Set user identifier
+                $_SESSION['login_attempts'] = 0; // Reset login attempts
+
+                // Redirect to welcome page
+                header("Location: /welcome");
+                exit();
+            } else {
+                $_SESSION['login_attempts']++;
+                $errors[] = "Invalid username or password.";
+
+                if ($_SESSION['login_attempts'] >= 3) {
+                    $errors[] = "Too many failed login attempts. The form is now disabled.";
+                }
+
+                return $this->render('login-form', ['errors' => $errors, 'disabled' => $_SESSION['login_attempts'] >= 3]);
+            }
+        } catch (Exception $e) {
+            $errors[] = "An unexpected error occurred: " . $e->getMessage();
+            return $this->render('login-form', ['errors' => $errors, 'disabled' => $_SESSION['login_attempts'] >= 3]);
         }
     }
+
+    public function welcome() {
+        session_start();
+
+        // Check if user is logged in
+        if (!isset($_SESSION['is_logged_in']) || !$_SESSION['is_logged_in']) {
+            header("Location: /login-form");
+            exit();
+        }
+
+        // Fetch all users to display
+        $userModel = new User();
+        $users = $userModel->getAllUsers();
+
+        // Render welcome page with users data
+        return $this->render('welcome', ['users' => $users]);
+    }
+
+    public function logout() {
+        session_start();
+
+        // Destroy session variables and the session itself
+        session_unset();
+        session_destroy();
+
+        // Redirect to the login form
+        header("Location: /login-form");
+        exit();
+    }
 }
+

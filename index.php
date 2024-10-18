@@ -17,12 +17,15 @@ try {
     $router->get('/suppliers/{id}', '\App\Controllers\SupplierController@single');
     $router->post('/suppliers/{id}', '\App\Controllers\SupplierController@update');
 
-    $router->get('/registration-form', '\App\Controllers\RegistrationController@showRegistrationForm');
+    $router->get('/registration-form', '\App\Controllers\RegistrationController@showForm');
     $router->post('/register', '\App\Controllers\RegistrationController@register');
-    $router->get('/login-form', '\App\Controllers\LoginController@showLoginForm');
-    $router->post('/login', '\App\Controllers\LoginController@login');
 
-    // Run it!
+    
+    $router->get('/login-form', '\App\Controllers\LoginController@showForm');
+    $router->post('/login', '\App\Controllers\LoginController@login');
+    $router->get('/welcome', '\App\Controllers\LoginController@welcome');// Route for the welcome page after login
+    $router->get('/logout', '\App\Controllers\LoginController@logout');
+
     $router->run();
 
 } catch (Exception $e) {
