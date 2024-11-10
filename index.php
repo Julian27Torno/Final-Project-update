@@ -24,8 +24,11 @@ try {
     $router->get('/login-form', '\App\Controllers\LoginController@showForm');
     $router->post('/login', '\App\Controllers\LoginController@login');
     $router->get('/welcome', '\App\Controllers\LoginController@welcome');// Route for the welcome page after login
+    $router->get('/patients', '\App\Controllers\PatientsController@showPatients');
     $router->get('/logout', '\App\Controllers\LoginController@logout');
 
+    $router->get('/add-records', '\App\Controllers\PatientsController@addForm');
+    $router->post('/addRecord', '\App\Controllers\EnrolmentController@addRecord');
     $router->run();
 
 } catch (Exception $e) {

@@ -8,98 +8,95 @@ use \Exception;
 
 class PatientsController extends BaseController
 {
-    protected $patients;
-
-    public function __construct()
-    {
-        $this->patients = new Patients(); // Initialize the Patients model
-    }
-
-    // List all patients
-    public function list()
+    public function showPatients()
     {
         try {
-            $data['patients'] = $this->patients->getAllPatients();
-            echo $this->render('patient-records.mustache', $data);
+            // Initialize the Patients model
+            $patientsModel = new Patients();
+
+            // Fetch all patients from the database
+            $patients = $patientsModel->all();
+
+            // Check if records are fetched
+            if (empty($patients)) {
+                throw new Exception("No patient records found.");
+            }
+
+            // Render the welcome view with the fetched patient data
+            echo $this->render('/patients', ['patients' => $patients]);
+
         } catch (Exception $e) {
-            echo "Error retrieving patient records: " . $e->getMessage();
+            // Log the error message for debugging
+            error_log("Error fetching patient records: " . $e->getMessage());
+
+            // Render an error message on the view
+            echo $this->render('patients', ['error' => 'Failed to load patient records. Please try again later.']);
         }
     }
+    public function addForm(){
+        $patientsModel = new Patients();
 
-    // Show the form to add a new patient
-    public function showAddForm()
-    {
-        echo $this->render('add-records.mustache');
+        echo $this->render('add-records');
     }
-
-    // Save a new patient record
-    public function save()
+    public function addRecord()
     {
         try {
-            $this->patients->save(
-                $_POST['case_no'],
-                $_POST['last_name'],
-                $_POST['first_name'],
-                $_POST['middle_name'],
-                $_POST['gender'],
-                $_POST['age'],
-                $_POST['contact_no']
-            );
-            header('Location: /patient-records'); // Redirect to the patient list
-        } catch (Exception $e) {
-            echo "Error saving patient: " . $e->getMessage();
-        }
-    }
+            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                // Retrieve form data
+                $lastname = $_POST['lastname'] ?? '';
+                $firstname = $_POST['firstname'] ?? '';
+                $middleinitial = $_POST['middleinitial'] ?? '';
+                $address = $_POST['address'] ?? '';
+                $age = $_POST['age'] ?? '';
+                $birthday = $_POST['birthday'] ?? '';
+                $birthplace = $_POST['birthplace'] ?? '';
+                $civil_status = $_POST['civil_status'] ?? '';
+                $gender = $_POST['gender'] ?? '';
+                $mobile = $_POST['mobile'] ?? '';
+                $religion = $_POST['religion'] ?? '';
+                $occupation = $_POST['occupation'] ?? '';
 
-    // Show the form to edit an existing patient
-    public function showEditForm($case_no)
-    {
-        try {
-            $data['patient'] = $this->patients->getPatient($case_no);
-            echo $this->render('edit-record.mustache', $data);
-        } catch (Exception $e) {
-            echo "Error loading edit form: " . $e->getMessage();
-        }
-    }
+                // Validate required fields
+                if (empty($lastname) || empty($firstname) || empty($address) || empty($age) || empty($birthday) || empty($mobile)) {
+                    throw new Exception("Please fill in all required fields.");
+                }
 
-    // Update an existing patient record
-    public function update($case_no)
-    {
-        try {
-            $this->patients->update(
-                $case_no,
-                $_POST['last_name'],
-                $_POST['first_name'],
-                $_POST['middle_name'],
-                $_POST['gender'],
-                $_POST['age'],
-                $_POST['contact_no']
-            );
-            header('Location: /patient-records'); // Redirect to the patient list
-        } catch (Exception $e) {
-            echo "Error updating patient: " . $e->getMessage();
-        }
-    }
+                // Initialize the Patients model
+                $patientsModel = new Patients();
 
-    // View a single patient record
-    public function view($case_no)
-    {
-        try {
-            $data['patient'] = $this->patients->getPatient($case_no);
-            echo $this->render('view-record.mustache', $data);
-        } catch (Exception $e) {
-            echo "Error viewing patient record: " . $e->getMessage();
-        }
-    }
+                // Prepare the data array
+                $patientData = [
+                    'lastname' => $lastname,
+                    'firstname' => $firstname,
+                    'middleinitial' => $middleinitial,
+                    'address' => $address,
+                    'age' => $age,
+                    'birthday' => $birthday,
+                    'birthplace' => $birthplace,
+                    'civil_status' => $civil_status,
+                    'gender' => $gender,
+                    'mobile' => $mobile,
+                    'religion' => $religion,
+                    'occupation' => $occupation
+                ];
 
-    // Delete a patient record
-    public function delete($case_no)
-    {
-        try {
-            $this->patients->delete($case_no);
-            header('Location: /patient-records'); // Redirect to the patient list
+                // Insert the new record into the database
+                $result = $patientsModel->insert($patientData);
+
+                if ($result) {
+                    // Redirect to the patients list page with success message
+                    header("Location: /patients?success=Record added successfully.");
+                    exit;
+                } else {
+                    throw new Exception("Failed to add patient record.");
+                }
+            }
+
+            // Render the add-records form if the request is GET
+            echo $this->render('add-records');
         } catch (Exception $e) {
-            echo "Error deleting patient record: " . $e->getMessage();
+            error_log("Error adding patient record: " . $e->getMessage());
+            echo $this->render('add-records', ['error' => 'Failed to add patient record. Please try again.']);
         }
     }
 }

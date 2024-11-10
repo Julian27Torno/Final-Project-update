@@ -20,6 +20,7 @@
             padding-top: 30px;
             color: #fff;
             box-shadow: 2px 0px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
         }
 
         .sidebar h4 {
@@ -55,18 +56,29 @@
             background-color: rgba(255, 255, 255, 0.2);
         }
 
+        /* Main Content Styling */
         .content {
             margin-left: 270px;
+            /* Margin for sidebar */
             padding: 20px;
+            max-width: calc(100% - 270px);
+            /* Full width minus sidebar width */
+            width: 100%;
+            transition: margin-left 0.3s ease, max-width 0.3s ease;
         }
 
+        /* Table Container */
         .table-container {
             background-color: #fff;
             border-radius: 8px;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            overflow-x: auto;
+            /* Enable horizontal scrolling */
         }
 
+        /* Table Actions */
         .table-actions {
             display: flex;
             gap: 10px;
@@ -87,19 +99,33 @@
             opacity: 0.9;
         }
 
+        /* Table Head */
         .table th {
             background-color: #f5f5f5;
         }
 
-        @media (max-width: 768px) {
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .content {
+                margin-left: 0;
+                max-width: 100%;
+                padding: 15px;
+            }
+
             .sidebar {
                 width: 100%;
                 height: auto;
                 position: relative;
+                padding-bottom: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 10px;
             }
 
-            .content {
-                margin-left: 0;
+            .table-container {
                 padding: 10px;
             }
         }
