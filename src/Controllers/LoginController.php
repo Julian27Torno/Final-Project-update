@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\User;
+use App\Models\Patients; 
 
 class LoginController extends BaseController
 {
@@ -49,7 +50,7 @@ class LoginController extends BaseController
                 $_SESSION['login_attempts'] = 0; // Reset login attempts
 
                 // Redirect to welcome page
-                header("Location: /welcome");
+                header("Location: /dashboard");
                 exit();
             } else {
                 $_SESSION['login_attempts']++;
@@ -67,22 +68,38 @@ class LoginController extends BaseController
         }
     }
 
-    public function welcome() {
-        session_start();
-
-        // Check if user is logged in
-        if (!isset($_SESSION['is_logged_in']) || !$_SESSION['is_logged_in']) {
-            header("Location: /login-form");
-            exit();
+    public function showDashboard()
+    {
+        $patientsModel = new Patients();
+    
+        // Fetch total patients
+        $totalPatients = count($patientsModel->getAll());
+    
+        // Fetch new patients added today
+        $newPatientsToday = $patientsModel->getNewPatientsToday(); // Method to implement
+    
+        // Fetch recent patients (e.g., last 5)
+        $recentPatients = array_slice($patientsModel->getAll(), -5);
+    
+        // Prepare data for patient trends (e.g., last 7 days)
+        $trendDates = [];
+        $trendValues = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('Y-m-d', strtotime("-$i days"));
+            $trendDates[] = $date;
+            $trendValues[] = $patientsModel->getCountByDate($date); // Implement this method in your model
         }
-
-        // Fetch all users to display
-        $userModel = new User();
-        $users = $userModel->getAllUsers();
-
-        // Render welcome page with users data
-        return $this->render('welcome', ['users' => $users]);
+    
+        // Pass data to the Mustache view
+        echo $this->render('dashboard', [
+            'total_patients' => $totalPatients,
+            'new_patients_today' => $newPatientsToday,
+            'recent_patients' => $recentPatients,
+            'trend_dates' => json_encode($trendDates),
+            'trend_values' => json_encode($trendValues),
+        ]);
     }
+    
 
     public function logout() {
         session_start();
