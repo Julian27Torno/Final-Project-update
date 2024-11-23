@@ -126,13 +126,13 @@ class OutPatientController extends BaseController
 
 
     
-public function editOutpatient($id)
+public function editOutpatient($case_number)
 {
     $outpatientsModel = new OutPatient();
     $patientsModel = new Patients();
 
     // Fetch outpatient data by case number
-    $outpatient = $outpatientsModel->find($id);
+    $outpatient = $outpatientsModel->find($case_number);
 
     // Check if outpatient record exists
     if (!$outpatient) {
@@ -141,7 +141,7 @@ public function editOutpatient($id)
     }
 
     // Fetch patient data using the case number
-    $patient = $patientsModel->find($id);
+    $patient = $patientsModel->find($case_number);
 
     // Check if patient exists
     if (!$patient) {
@@ -172,52 +172,51 @@ public function editOutpatient($id)
 }
 
     
-    public function updateoutPatient($id)
-    {
-        $outpatientsModel = new Outpatient();
+public function updateoutPatient($id)
+{
+    $outpatientsModel = new Outpatient();
 
-        // Start session if not already started
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        // Fetch form data
-        $location = $_POST['location'];
-        $quality = $_POST['quality'];
-        $severity = $_POST['severity'];
-        $duration = $_POST['duration'];
-        $blood_pressure = $_POST['blood_pressure'];
-        $temperature = $_POST['temperature'];
-        $oxygen_saturation = $_POST['oxygen_saturation'];
-        
-
-
-        // Update the patient record
-        $result = $outpatientsModel->update($location, $quality, $severity, $duration, $blood_pressure, $temperature, $oxygen_saturation);
-
-        if ($result) {
-            // Log the action
-            if (isset($_SESSION['user_id'])) {
-                $logsController = new UserLogsController();
-                $logsController->logAction(
-                    $_SESSION['user_id'],
-                    'UPDATE',
-                    'patient',
-                    "Updated Outpatient record for case number {$id}"
-                );
-            } else {
-                error_log("Warning: user_id is not set in session. Action not logged.");
-            }
-
-            // Redirect to the patients list with success message
-            header("Location: /patients?success=Record updated successfully");
-            exit;
-        } else {
-            // Redirect to the edit page with error message
-            header("Location: /edit-patient/{$id}?error=Failed to update record");
-            exit();
-        }
+    // Start session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
     }
+
+    // Fetch form data
+    $location = $_POST['location'];
+    $quality = $_POST['quality'];
+    $severity = $_POST['severity'];
+    $duration = $_POST['duration'];
+    $blood_pressure = $_POST['blood_pressure'];
+    $temperature = $_POST['temperature'];
+    $oxygen_saturation = $_POST['oxygen_saturation'];
+
+    // Update the patient record
+    $result = $outpatientsModel->update($id, $location, $quality, $severity, $duration, $blood_pressure, $temperature, $oxygen_saturation);
+
+    if ($result) {
+        // Log the action
+        if (isset($_SESSION['user_id'])) {
+            $logsController = new UserLogsController();
+            $logsController->logAction(
+                $_SESSION['user_id'],
+                'UPDATE',
+                'Outpatient',
+                "Updated Outpatient record for case number {$id}"
+            );
+        } else {
+            error_log("Warning: user_id is not set in session. Action not logged.");
+        }
+
+        // Redirect to the patients list with success message
+        header("Location: /outpatient?success=Outpatient Record updated successfully");
+        exit;
+    } else {
+        // Redirect to the edit page with error message
+        header("Location: /edit-patient/{$id}?error=Failed to update record");
+        exit();
+    }
+}
+
 
     
     public function deleteOutpatientRecord($id)

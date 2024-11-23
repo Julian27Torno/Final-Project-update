@@ -67,35 +67,36 @@ class Patients extends BaseModel
     }
 }
 
-public function update($location, $quality, $severity, $duration, $blood_pressure, $temperature, $oxygen_saturation)
+
+public function update($case_no, $last_name, $first_name, $middle_name, $age, $gender, $contact_no)
 {
-    $sql = "UPDATE outpatient_findings 
-            SET location = :location, 
-                quality = :quality, 
-                severity = :severity, 
-                duration = :duration, 
-                blood_pressure = :blood_pressure, 
-                temperature = :temperature
-            WHERE id = :id";
+    $sql = "UPDATE patients 
+            SET last_name = :last_name, 
+                first_name = :first_name, 
+                middle_name = :middle_name, 
+                age = :age, 
+                gender = :gender, 
+                contact_no = :contact_no
+            WHERE case_no = :case_no";
 
     $statement = $this->db->prepare($sql);
 
     // Bind parameters
-    $statement->bindParam(':id', $id);
-    $statement->bindParam(':location', $location);
-    $statement->bindParam(':quality', $quality);
-    $statement->bindParam(':severity', $severity);
-    $statement->bindParam(':duration', $duration);
-    $statement->bindParam(':blood_pressure', $blood_pressure);
-    $statement->bindParam(':temperature', $temperature);
-    $statement->bindParam(':oxygen_saturation', $oxygen_saturation);
+    $statement->bindParam(':case_no', $case_no);
+    $statement->bindParam(':last_name', $last_name);
+    $statement->bindParam(':first_name', $first_name);
+    $statement->bindParam(':middle_name', $middle_name);
+    $statement->bindParam(':age', $age);
+    $statement->bindParam(':gender', $gender);
+    $statement->bindParam(':contact_no', $contact_no);
 
     try {
         return $statement->execute();
     } catch (\PDOException $e) {
-        throw new \Exception("Error updating Outpatient record: " . $e->getMessage());
+        throw new \Exception("Error updating patient record: " . $e->getMessage());
     }
 }
+
 
 public function find($case_no)
 {
