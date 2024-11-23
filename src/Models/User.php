@@ -60,4 +60,14 @@ class User extends BaseModel
         $statement->execute();
         return $statement->fetchAll(PDO::FETCH_CLASS, '\App\Models\User');
     }
+    
+    public function getUserByUsername($username)
+{
+    $sql = "SELECT * FROM users WHERE username = :username";
+    $stmt = $this->db->prepare($sql);
+    $stmt->bindValue(':username', $username);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC); // Fetch the user record
+}
+
 }

@@ -30,10 +30,6 @@
             margin-bottom: 20px;
         }
 
-        .sidebar hr {
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
         .sidebar a {
             color: #fff;
             text-decoration: none;
@@ -43,8 +39,6 @@
             gap: 10px;
             border-radius: 4px;
             margin-bottom: 5px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
         }
 
         .sidebar a:hover {
@@ -54,44 +48,40 @@
         .sidebar a.active {
             background-color: rgba(255, 255, 255, 0.2);
         }
-
-        /* Main Content Styling */
-        .content {
+  .content {
             margin-left: 270px;
             padding: 20px;
-            max-width: calc(100% - 270px);
-            width: 100%;
-            transition: margin-left 0.3s ease, max-width 0.3s ease;
         }
 
-        /* Responsive Adjustments */
-        @media (max-width: 992px) {
-            .content {
-                margin-left: 0;
-                max-width: 100%;
-                padding: 15px;
-            }
 
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding-bottom: 20px;
-            }
+        .tab-content {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        @media (max-width: 768px) {
-            .content {
-                padding: 10px;
-            }
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+            color: #fff;
+        }
+
+        .btn-view {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-pdf {
+            background-color: #dc3545;
+            color: #fff;
         }
     </style>
 </head>
-{{#successMessage}}
-<div class="alert alert-success">
-    {{successMessage}}
-</div>
-{{/successMessage}}
 
 <body class="bg-light">
     <div class="d-flex flex-column flex-md-row">
@@ -101,104 +91,181 @@
             <hr>
             <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
             <a href="/patients"><i class="fas fa-table"></i> Patient Records Table</a>
-            <a href="/add-records" ><i class="fas fa-list-alt"></i> Add Records</a>
+            <a href="/add-records"><i class="fas fa-list-alt"></i> Add Records</a>
             <a href="/add-doctors"><i class="fas fa-user-plus"></i> Add Doctors</a>
             <a href="/user-logs"><i class="fas fa-file-alt"></i> User Logs</a>
             <a href="/outpatient" class="active"><i class="fas fa-notes-medical"></i> Outpatient Findings</a>
-            <a href="/admission" ><i class="fas fa-hospital"></i> Admission Record</a>
+            <a href="/admission"><i class="fas fa-hospital"></i> Admission Record</a>
             <hr>
-             <a href="/logout" ><i class="fas fa-sign-out-alt"></i> Logout</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
-
+        </div>
         <!-- Main Content -->
         <div class="content">
-            <div class="container mt-4">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>Outpatient Findings</h2>
-                
+             <h2>Outpatient Findings</h2>
+                       
+            <ul class="nav nav-tabs mb-4" id="outpatientTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" id="findings-tab" data-bs-toggle="tab" data-bs-target="#findings"
+                        type="button" role="tab" aria-controls="findings" aria-selected="true">Outpatient Findings</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="records-tab" data-bs-toggle="tab" data-bs-target="#records" type="button"
+                        role="tab" aria-controls="records" aria-selected="false">Outpatient Records</button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Outpatient Findings -->
+                <div class="tab-pane fade show active" id="findings" role="tabpanel" aria-labelledby="findings-tab">
+                    <div class="container mt-4">
+                        
+
+                        <form action="/outpatient/store" method="POST">
+                            <div class="row mb-3">
+    <div class="col-md-6">
+        <label for="case_number" class="form-label">Patient Case Number</label>
+        <select id="case_number" name="case_number" class="form-control" required>
+            <option value="" disabled selected>Select Patient</option>
+            {{#available_patients}}
+                <option value="{{case_no}}">{{case_no}} - {{last_name}}, {{first_name}}</option>
+            {{/available_patients}}
+            {{^available_patients}}
+                <option disabled>No patients available</option>
+            {{/available_patients}}
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label for="date" class="form-label">Date</label>
+        <input type="date" id="date" name="date" class="form-control" required>
+    </div>
+</div>
+
+                            <div class="mb-3">
+                                <label for="chief_complaint" class="form-label">Chief Complaint</label>
+                                <textarea id="chief_complaint" name="chief_complaint" class="form-control"
+                                    placeholder="Enter Chief Complaint" rows="2" required></textarea>
+                            </div>
+
+                           <div class="mb-3">
+                           <hr>
+    <label for="history_present_illness" class="form-label"><strong>History of Present Illness</strong></label>
+    <div class="row">
+        <div class="col-md-6">
+            <label for="location" class="form-label">Location</label>
+            <textarea id="location" name="location" class="form-control" placeholder="Enter Location" rows="2"></textarea>
+        </div>
+        <div class="col-md-6">
+            <label for="quality" class="form-label">Quality</label>
+            <textarea id="quality" name="quality" class="form-control" placeholder="Enter Quality" rows="2"></textarea>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <label for="severity" class="form-label">Severity</label>
+            <textarea id="severity" name="severity" class="form-control" placeholder="Enter Severity" rows="2"></textarea>
+        </div>
+        <div class="col-md-6">
+            <label for="duration" class="form-label">Duration</label>
+            <textarea id="duration" name="duration" class="form-control" placeholder="Enter Duration" rows="2"></textarea>
+        </div>
+    </div>
+</div>
+
+<hr>
+<label for="history_present_illness" class="form-label"><strong>Vital Signs</strong></label>
+    
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="blood_pressure" class="form-label">Blood Pressure</label>
+                                    <input type="text" id="blood_pressure" name="blood_pressure" class="form-control"
+                                        placeholder="BP">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="respiratory_rate" class="form-label">Respiratory Rate</label>
+                                    <input type="text" id="respiratory_rate" name="respiratory_rate"
+                                        class="form-control" placeholder="RR">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="temperature" class="form-label">Temperature</label>
+                                    <input type="text" id="temperaturel" name="temperature"
+                                        class="form-control" placeholder="TEMP">
+                                </div>
+                                 <div class="col-md-4">
+                                    <label for="oxygen_saturation" class="form-label">Oxygen Saturation</label>
+                                    <input type="text" id="oxygen_saturation" name="oxygen_saturation"
+                                        class="form-control" placeholder="o2 SAT">
+                                </div>
+                            </div>
+        <hr>
+                            <div class="mb-3">
+                                <label for="diagnosis" class="form-label">Diagnosis</label>
+                                <textarea id="diagnosis" name="diagnosis" class="form-control"
+                                    placeholder="Enter Diagnosis"></textarea>
+                            </div>
+                              <div class="mb-3">
+                                <label for="medication_treatment" class="form-label">Treatment</label>
+                                <textarea id="medication_treatment" name="medication_treatment" class="form-control"
+                                    placeholder="Enter Treatment"></textarea>
+                            </div>
+                                                        <div class="col-md-4">
+                                <label for="attending_physician" class="form-label">Attending Physician</label>
+                                <select id="attending_physician" name="attending_physician" class="form-control" required>
+                                    <option value="" disabled selected>Select Doctor</option>
+                                    {{#available_doctors}}
+                                        <option value="{{doctor_id}}">{{last_name}}, {{first_name}}</option>
+                                    {{/available_doctors}}
+                                    {{^available_doctors}}
+                                        <option disabled>No doctors available</option>
+                                    {{/available_doctors}}
+                                </select>
+                            </div>
+
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success">Save Record</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
 
-                <form action="/outpatient/store" method="POST">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="case_number" class="form-label">Patient Case Number</label>
-                            <input type="text" id="case_number" name="case_number" class="form-control" placeholder="Enter Case Number" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="date" class="form-label">Date</label>
-                            <input type="date" id="date" name="date" class="form-control" required>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="chief_complaint" class="form-label">Chief Complaint</label>
-                        <textarea id="chief_complaint" name="chief_complaint" class="form-control" placeholder="Enter Chief Complaint" rows="2" required></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="history_present_illness" class="form-label">History of Present Illness</label>
-                        <textarea id="history_present_illness" name="history_present_illness" class="form-control" placeholder="Enter History of Present Illness" rows="3"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="physical_examination" class="form-label">Physical Examination</label>
-                        <textarea id="physical_examination" name="physical_examination" class="form-control" placeholder="Enter Physical Examination" rows="3"></textarea>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="blood_pressure" class="form-label">Blood Pressure</label>
-                            <input type="text" id="blood_pressure" name="blood_pressure" class="form-control" placeholder="BP">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="respiratory_rate" class="form-label">Respiratory Rate</label>
-                            <input type="text" id="respiratory_rate" name="respiratory_rate" class="form-control" placeholder="RR">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="capillary_refill" class="form-label">Capillary Refill</label>
-                            <input type="text" id="capillary_refill" name="capillary_refill" class="form-control" placeholder="CR">
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label for="temperature" class="form-label">Temperature</label>
-                            <input type="text" id="temperature" name="temperature" class="form-control" placeholder="TEMP">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="weight" class="form-label">Weight</label>
-                            <input type="text" id="weight" name="weight" class="form-control" placeholder="WT">
-                        </div>
-                        <div class="col-md-4">
-                            <label for="pulse_rate" class="form-label">Pulse Rate</label>
-                            <input type="text" id="pulse_rate" name="pulse_rate" class="form-control" placeholder="PR">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="diagnosis" class="form-label">Diagnosis</label>
-                        <textarea id="diagnosis" name="diagnosis" class="form-control" placeholder="Enter Diagnosis"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="medication_treatment" class="form-label">Medication/Treatment</label>
-                        <textarea id="medication_treatment" name="medication_treatment" class="form-control" placeholder="Enter Medication/Treatment"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="attending_physician" class="form-label">Attending Physician</label>
-                        <input type="text" id="attending_physician" name="attending_physician" class="form-control" placeholder="Enter Physician Name">
-                    </div>
-
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-success">Save Record</button>
-                    </div>
-                </form>
+                <!-- Outpatient Records -->
+                <div class="tab-pane fade" id="records" role="tabpanel" aria-labelledby="records-tab">
+                    <h3>Outpatient Records</h3>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Patient Case No.</th>
+                                <th>Diagnosis</th>
+                                <th>Attending Physician</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#outpatient_records}}
+                            <tr>
+                                <td>P-{{case_number}}</td>
+                                <td>{{diagnosis}}</td>
+                                <td>{{attending_physician}}</td>
+                                <td>
+                                    <a href="/view-outpatient/{{case_number}}" class="btn btn-view btn-sm">View</a>
+                                    <a href="/edit-outpatient/{{case_number}}" class="btn btn-edit btn-sm">Edit</a>
+                                    <a href="/outpatient/print/{{case_number}}" class="btn btn-pdf btn-sm">Print PDF</a>
+                                </td>
+                            </tr>
+                            {{/outpatient_records}}
+                            {{^outpatient_records}}
+                            <tr>
+                                <td colspan="4" class="text-center">No records found.</td>
+                            </tr>
+                            {{/outpatient_records}}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Include Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

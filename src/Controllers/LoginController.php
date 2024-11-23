@@ -1,21 +1,23 @@
-<?php 
+<?php
 
 namespace App\Controllers;
 
 use App\Models\User;
-use App\Models\Patients; 
+use App\Models\Patients;
 
 class LoginController extends BaseController
 {
-    public function showForm() {
+    public function showForm()
+    {
         // Show the login form without errors
         return $this->render('login-form');
     }
 
-    public function login() {
+    public function login()
+    {
         // Initialize an array to store validation errors
         $errors = [];
-        
+
         // Start session
         session_start();
 
@@ -36,20 +38,24 @@ class LoginController extends BaseController
 
             // Check for errors before processing
             if (!empty($errors)) {
-                return $this->render('login-form', ['errors' => $errors, 'disabled' => $_SESSION['login_attempts'] >= 3]);
+                return $this->render('login-form', [
+                    'errors' => $errors,
+                    'disabled' => $_SESSION['login_attempts'] >= 3,
+                ]);
             }
 
             // Validate credentials
-            $user = new User();
-            $hashedPassword = $user->getPassword($username); // Retrieve the hashed password
+            $userModel = new User();
+            $user = $userModel->getUserByUsername($username); // Retrieve the user row by username
 
-            if ($hashedPassword && password_verify($password, $hashedPassword)) {
+            if ($user && password_verify($password, $user['password_hash'])) {
                 // Successful login
                 $_SESSION['is_logged_in'] = true; // Set login state
-                $_SESSION['user_id'] = $username; // Set user identifier
+                $_SESSION['user_id'] = $user['id']; // Store the user's unique ID in the session
+                $_SESSION['username'] = $user['username']; // Store the username in the session (optional)
                 $_SESSION['login_attempts'] = 0; // Reset login attempts
 
-                // Redirect to welcome page
+                // Redirect to the dashboard
                 header("Location: /dashboard");
                 exit();
             } else {
@@ -60,27 +66,33 @@ class LoginController extends BaseController
                     $errors[] = "Too many failed login attempts. The form is now disabled.";
                 }
 
-                return $this->render('login-form', ['errors' => $errors, 'disabled' => $_SESSION['login_attempts'] >= 3]);
+                return $this->render('login-form', [
+                    'errors' => $errors,
+                    'disabled' => $_SESSION['login_attempts'] >= 3,
+                ]);
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $errors[] = "An unexpected error occurred: " . $e->getMessage();
-            return $this->render('login-form', ['errors' => $errors, 'disabled' => $_SESSION['login_attempts'] >= 3]);
+            return $this->render('login-form', [
+                'errors' => $errors,
+                'disabled' => $_SESSION['login_attempts'] >= 3,
+            ]);
         }
     }
 
     public function showDashboard()
     {
         $patientsModel = new Patients();
-    
+
         // Fetch total patients
         $totalPatients = count($patientsModel->getAll());
-    
+
         // Fetch new patients added today
         $newPatientsToday = $patientsModel->getNewPatientsToday(); // Method to implement
-    
+
         // Fetch recent patients (e.g., last 5)
         $recentPatients = array_slice($patientsModel->getAll(), -5);
-    
+
         // Prepare data for patient trends (e.g., last 7 days)
         $trendDates = [];
         $trendValues = [];
@@ -89,7 +101,7 @@ class LoginController extends BaseController
             $trendDates[] = $date;
             $trendValues[] = $patientsModel->getCountByDate($date); // Implement this method in your model
         }
-    
+
         // Pass data to the Mustache view
         echo $this->render('dashboard', [
             'total_patients' => $totalPatients,
@@ -99,9 +111,9 @@ class LoginController extends BaseController
             'trend_values' => json_encode($trendValues),
         ]);
     }
-    
 
-    public function logout() {
+    public function logout()
+    {
         session_start();
 
         // Destroy session variables and the session itself
@@ -113,4 +125,3 @@ class LoginController extends BaseController
         exit();
     }
 }
-

@@ -67,32 +67,33 @@ class Patients extends BaseModel
     }
 }
 
-public function update($case_no, $last_name, $first_name, $middle_name, $age, $gender, $contact_no)
+public function update($location, $quality, $severity, $duration, $blood_pressure, $temperature, $oxygen_saturation)
 {
-    $sql = "UPDATE patients 
-            SET last_name = :last_name, 
-                first_name = :first_name, 
-                middle_name = :middle_name, 
-                age = :age, 
-                gender = :gender, 
-                contact_no = :contact_no
-            WHERE case_no = :case_no";
+    $sql = "UPDATE outpatient_findings 
+            SET location = :location, 
+                quality = :quality, 
+                severity = :severity, 
+                duration = :duration, 
+                blood_pressure = :blood_pressure, 
+                temperature = :temperature
+            WHERE id = :id";
 
     $statement = $this->db->prepare($sql);
 
     // Bind parameters
-    $statement->bindParam(':case_no', $case_no);
-    $statement->bindParam(':last_name', $last_name);
-    $statement->bindParam(':first_name', $first_name);
-    $statement->bindParam(':middle_name', $middle_name);
-    $statement->bindParam(':age', $age);
-    $statement->bindParam(':gender', $gender);
-    $statement->bindParam(':contact_no', $contact_no);
+    $statement->bindParam(':id', $id);
+    $statement->bindParam(':location', $location);
+    $statement->bindParam(':quality', $quality);
+    $statement->bindParam(':severity', $severity);
+    $statement->bindParam(':duration', $duration);
+    $statement->bindParam(':blood_pressure', $blood_pressure);
+    $statement->bindParam(':temperature', $temperature);
+    $statement->bindParam(':oxygen_saturation', $oxygen_saturation);
 
     try {
         return $statement->execute();
     } catch (\PDOException $e) {
-        throw new \Exception("Error updating patient record: " . $e->getMessage());
+        throw new \Exception("Error updating Outpatient record: " . $e->getMessage());
     }
 }
 
@@ -143,4 +144,47 @@ public function search($query)
             throw new \Exception("Error fetching patient records: " . $e->getMessage());
         }
     }
+
+    public function getAvailablePatients()
+    {
+        $sql = "SELECT case_no, last_name, first_name FROM patients";
+        $stmt = $this->db->prepare($sql);
+
+        try {
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            throw new \Exception("Error fetching patients: " . $e->getMessage());
+        }
+    }
+
+    public function deleteByCaseNumber($case_no)
+{
+    $sql = "DELETE FROM patients WHERE case_no = :case_no";
+    $statement = $this->db->prepare($sql);
+
+    try {
+        $statement->bindParam(':case_no', $case_no, PDO::PARAM_INT);
+        $statement->execute();
+    } catch (\PDOException $e) {
+        throw new \Exception("Error deleting patient record: " . $e->getMessage());
+    }
+}
+
+    
+public function getPatientByCaseNumber($case_no)
+{
+    $sql = "SELECT * FROM patients WHERE case_no = :case_no";
+    $statement = $this->db->prepare($sql);
+
+    try {
+        $statement->bindParam(':case_no', $case_no, PDO::PARAM_INT);
+        $statement->execute();
+        return $statement->fetch(PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+        throw new \Exception("Error fetching patient: " . $e->getMessage());
+    }
+}
+
+    
 }

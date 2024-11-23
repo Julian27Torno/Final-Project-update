@@ -103,7 +103,7 @@
             <a href="/dashboard" ><i class="fas fa-tachometer-alt"></i> Dashboard</a>
             <a href="/patients" ><i class="fas fa-table"></i> Patient Records Table</a>
             <a href="/add-records"><i class="fas fa-list-alt"></i> Add Records</a>
-            <a href="/add-users"><i class="fas fa-user-plus"></i> Add Doctors</a>
+            <a href="/add-doctors"><i class="fas fa-user-plus"></i> Add Doctors</a>
             <a href="/user-logs"><i class="fas fa-file-alt"></i> User Logs</a>
             <a href="/outpatient"><i class="fas fa-notes-medical"></i> Outpatient Findings</a>
             <a href="/admission" class="active"><i class="fas fa-hospital"></i> Admission Record</a>
@@ -126,11 +126,20 @@
         <div class="tab-content">
             <!-- Admission Form -->
             <div class="tab-pane fade show active" id="admission-form" role="tabpanel" aria-labelledby="admission-form-tab">
+                <h3>Add Admitted Patients</h3>
                 <form action="/admission/store" method="POST">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label for="case_number" class="form-label">Patient Case Number</label>
-                            <input type="text" id="case_number" name="case_number" class="form-control" placeholder="Enter Case Number" required>
+                                    <label for="case_number" class="form-label">Patient Case Number</label>
+                    <select id="case_number" name="case_number" class="form-control" required>
+                        <option value="" disabled selected>Select Patient</option>
+                        {{#available_patients}}
+                            <option value="{{case_no}}">{{case_no}} - {{last_name}}, {{first_name}}</option>
+                        {{/available_patients}}
+                        {{^available_patients}}
+                            <option disabled>No patients available</option>
+                        {{/available_patients}}
+                    </select>
                         </div>
                         <div class="col-md-6">
                             <label for="date_admitted" class="form-label">Date Admitted</label>
@@ -156,10 +165,18 @@
 
 
                          </div>
-                        <div class="col-md-6">
-                            <label for="attending_physician" class="form-label">Attending Physician</label>
-                            <input type="text" id="attending_physician" name="attending_physician" class="form-control" placeholder="Enter Physician Name">
-                        </div>
+                         <div class="col-md-4">
+                                <label for="attending_physician" class="form-label">Attending Physician</label>
+                                <select id="attending_physician" name="attending_physician" class="form-control" required>
+                                    <option value="" disabled selected>Select Doctor</option>
+                                    {{#available_doctors}}
+                                        <option value="{{doctor_id}}">{{last_name}}, {{first_name}}</option>
+                                    {{/available_doctors}}
+                                    {{^available_doctors}}
+                                        <option disabled>No doctors available</option>
+                                    {{/available_doctors}}
+                                </select>
+                            </div>
                     </div>
                     <div class="text-center">
                         <button type="submit" class="btn btn-success">Save Admission Record</button>
@@ -183,7 +200,7 @@
                     <tbody>
                     {{#admitted_patients}}
                     <tr>
-                        <td>{{case_number}}</td>
+                        <td>P-{{case_number}}</td>
                         <td>{{room_number}}</td>
                         <td>{{date_admitted}}</td>
                         <td>{{attending_physician}}</td>
