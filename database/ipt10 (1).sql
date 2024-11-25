@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 23, 2024 at 11:01 AM
+-- Generation Time: Nov 25, 2024 at 01:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -63,7 +63,8 @@ INSERT INTO `doctors` (`id`, `doctor_id`, `first_name`, `last_name`, `specializa
 (2, '12312312', 'eduardo', 'torno', 'general', '21312321', 'eddutorns@gmail.com', '2024-11-22 07:02:58'),
 (3, '12312312312', 'asd', 'asd', 'asd', 'asdd', 'asd@gasdf', '2024-11-22 07:04:15'),
 (4, '12312', 'asd', 'asd', 'asd', 'asd', 'asdd@gasd', '2024-11-22 07:06:41'),
-(6, '12312312566565', 'sadasd', 'asdas', 'asdas', 'asdas', 'asdas@asdas', '2024-11-22 07:08:45');
+(6, '12312312566565', 'sadasd', 'asdas', 'asdas', 'asdas', 'asdas@asdas', '2024-11-22 07:08:45'),
+(7, '1111', 'shimney', 'neyney', 'solid', '123123', 'gmasdfi@gmal.com', '2024-11-25 12:30:01');
 
 -- --------------------------------------------------------
 
@@ -111,6 +112,14 @@ CREATE TABLE `patients` (
   `occupation` varchar(100) DEFAULT NULL,
   `date_added` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `patients`
+--
+
+INSERT INTO `patients` (`case_no`, `last_name`, `first_name`, `middle_name`, `address`, `age`, `birthday`, `birthplace`, `civil_status`, `gender`, `contact_no`, `religion`, `occupation`, `date_added`) VALUES
+(12, 'Torno', 'Julian ', 'Jimenez', 'asdas', 27, '2024-11-23', 'asd', 'Single', 'Male', '213', 'aszd', 'asd', '2024-11-23 14:03:47'),
+(13, 'tyo', 'asd', 'asd', 'asdas', 25, '2024-11-25', 'sada', 'Single', 'Male', '213', 'asd', 'asd', '2024-11-25 12:30:40');
 
 -- --------------------------------------------------------
 
@@ -222,7 +231,21 @@ INSERT INTO `user_logs` (`id`, `user_id`, `action`, `module`, `timestamp`, `deta
 (16, 1, 'ADD', 'admission', '2024-11-23 15:48:23', 'Admitted patient with case number 11 to room 14'),
 (17, 1, 'DISCHARGE', 'admission', '2024-11-23 15:50:26', 'Discharged patient with case number 11 and released room 14'),
 (18, 1, 'UPDATE', 'patient', '2024-11-23 15:55:12', 'Updated Outpatient record for case number 3'),
-(19, 1, 'DELETE', 'patient', '2024-11-23 18:00:36', 'Deleted patient record with case number 11');
+(19, 1, 'DELETE', 'patient', '2024-11-23 18:00:36', 'Deleted patient record with case number 11'),
+(20, 1, 'ADD', 'patient', '2024-11-23 22:03:47', 'Added a new patient: Julian Carlos Torno'),
+(21, 1, 'UPDATE', 'patient', '2024-11-23 22:04:47', 'Updated Outpatient record for case number 4'),
+(22, 1, 'UPDATE', 'patient', '2024-11-23 22:05:01', 'Updated Outpatient record for case number 4'),
+(23, 1, 'UPDATE', 'patient', '2024-11-23 22:11:36', 'Updated Outpatient record for case number 4'),
+(24, 1, 'UPDATE', 'patient', '2024-11-23 22:12:19', 'Updated Outpatient record for case number 4'),
+(25, 1, 'UPDATE', 'patient', '2024-11-23 22:14:19', 'Updated Outpatient record for case number 4'),
+(26, 1, 'UPDATE', 'Outpatient', '2024-11-23 22:16:43', 'Updated Outpatient record for case number 4'),
+(27, 1, 'UPDATE', 'Outpatient', '2024-11-23 22:17:01', 'Updated Outpatient record for case number 4'),
+(28, 1, 'UPDATE', 'patient', '2024-11-23 22:24:17', 'Updated patient record for case number 12'),
+(29, 1, 'ADD', 'doctor', '2024-11-25 20:30:01', 'Added a new doctor: shimney neyney'),
+(30, 1, 'ADD', 'patient', '2024-11-25 20:30:40', 'Added a new patient: asd tyo'),
+(31, 1, 'DELETE', 'Outpatient', '2024-11-25 20:31:09', 'Deleted outpatient record with ID 4'),
+(32, 1, 'ADD', 'admission', '2024-11-25 20:31:23', 'Admitted patient with case number 12 to room 305'),
+(33, 1, 'DISCHARGE', 'admission', '2024-11-25 20:31:30', 'Discharged patient with case number 12 and released room 305');
 
 --
 -- Indexes for dumped tables
@@ -285,25 +308,25 @@ ALTER TABLE `user_logs`
 -- AUTO_INCREMENT for table `admission_records`
 --
 ALTER TABLE `admission_records`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `doctors`
 --
 ALTER TABLE `doctors`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `outpatient_findings`
 --
 ALTER TABLE `outpatient_findings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `patients`
 --
 ALTER TABLE `patients`
-  MODIFY `case_no` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `case_no` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `rooms`
@@ -321,7 +344,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_logs`
 --
 ALTER TABLE `user_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- Constraints for dumped tables

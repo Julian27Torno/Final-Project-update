@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\Patients;
 use App\Controllers\BaseController;
+use App\Models\OutPatient;
 use App\Controllers\UserLogsController; // Import the UserLogsController
 use Fpdf\Fpdf; 
 use \Exception;
@@ -224,94 +225,107 @@ class PatientsController extends BaseController
     }
 
     public function printPDF($case_no)
-{
-    $patientModel = new Patients();
-    $patient = $patientModel->find($case_no);
-
-    // Check if patient exists
-    if (!$patient) {
-        die("Patient not found or case number invalid!");
-    }
-
-    // Initialize FPDF
-    $pdf = new FPDF();
-    $pdf->AddPage();
-
-    // Add a logo (Ensure the path to your logo is correct)
-    $logoPath = __DIR__ . '/../../images/logo.png'; // Update with your actual logo path
-    if (file_exists($logoPath)) {
-        $pdf->Image($logoPath, 10, 10, 30); // Position: x=10, y=10; Width=30mm
-    }
-
-    // Add a header
-    $pdf->SetFont('Arial', 'B', 20);
-    $pdf->SetTextColor(0, 102, 204); // Blue color
-    $pdf->Cell(0, 15, "Patient Record", 0, 1, 'C');
+    {
+        $patientModel = new Patients();
+        $outpatientModel = new Outpatient();
+        $patient = $patientModel->find($case_no);
+        $outpatient = $outpatientModel->find($case_number);
     
-    // Hopes and Heal Hospital - Smaller and Times New Roman
-    $pdf->SetFont('Times', '', 12); // Times New Roman, regular, size 12
-    $pdf->SetTextColor(0, 0, 0); // Black color
-    $pdf->Cell(0, 5, "Hopes and Heal Hospital", 0, 1, 'C'); // Center-aligned
-    $pdf->Ln(20); // Add vertical spacing
+        // Check if patient exists
+        if (!$patient) {
+            die("Patient not found or case number invalid!");
+        }
+        
+        if (!$outpatient) {
+            die("Patient not found or case number invalid!");
+        }
+        // Initialize FPDF
+        $pdf = new FPDF();
+        $pdf->AddPage();
+    
+        // Add a logo
+        $logoPath = __DIR__ . '/../../images/logo.png'; // Update with your actual logo path
+        if (file_exists($logoPath)) {
+            $pdf->Image($logoPath, 10, 10, 30); // Position: x=10, y=10; Width=30mm
+        }
+    
+        // Add header
+        $pdf->SetFont('Arial', 'B', 20);
+        $pdf->SetTextColor(0, 102, 204); // Blue color
+        $pdf->Cell(0, 15, "Patient Personal Information", 0, 1, 'C');
+        
+        // Hopes and Heal Hospital - Smaller text
+        $pdf->SetFont('Times', '', 12);
+        $pdf->SetTextColor(0, 0, 0); // Black color
+        $pdf->Cell(0, 5, "Hopes and Heal Hospital", 0, 1, 'C');
+        $pdf->Ln(10);
+    
+        // Add horizontal line
+        $pdf->SetDrawColor(0, 0, 0); // Black line
+        $pdf->SetLineWidth(0.5); // Line thickness
+        $pdf->Line(10, $pdf->GetY(), 200, $pdf->GetY());
+        $pdf->Ln(10); // Spacing after the line
+    
+        // Left-side information
+        $pdf->SetFont('Arial', '', 12);
+        $leftX = 10; // Left margin
+        $rightX = 110; // Right side starting point
+    
+        // Case Number
+        $pdf->SetXY($leftX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Case Number: {$patient->case_no}", 0, 0, 'L');
+    
+        // Age
+        $pdf->SetXY($rightX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Age: {$patient->age}", 0, 1, 'L');
+    
+        // Patient Name
+        $pdf->SetXY($leftX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Patient Name: {$patient->first_name} {$patient->middle_name} {$patient->last_name}", 0, 0, 'L');
+    
+        // Contact Number
+        $pdf->SetXY($rightX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Contact Number: {$patient->contact_no}", 0, 1, 'L');
+    
+        // Gender
+        $pdf->SetXY($leftX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Gender: {$patient->gender}", 0, 0, 'L');
 
-    // Add patient details with improved styling
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->SetTextColor(0, 0, 0); // Black color
+        // Date Added
+        $pdf->SetXY($rightX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Occupation: {$patient->occupation}", 0, 1, 'L');
+        
+        $pdf->SetXY($leftX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Address: {$patient->address}", 0, 0, 'L');
 
-    $pdf->Cell(50, 10, "Case No:", 1, 0, 'L', false);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $patient->case_no, 1, 1);
+        $pdf->SetXY($rightX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Birth Date: {$patient->birthday}", 0, 1, 'L');
 
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(50, 10, "Last Name:", 1, 0, 'L', false);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $patient->last_name, 1, 1);
+        $pdf->SetXY($leftX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Birth Place: {$patient->birthplace}", 0, 0, 'L');
 
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(50, 10, "First Name:", 1, 0, 'L', false);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $patient->first_name, 1, 1);
+        $pdf->SetXY($rightX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Civil Status: {$patient->civil_status}", 0, 1, 'L');
+        
+        $pdf->SetXY($leftX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Religion: {$patient->religion}", 0, 0, 'L');
 
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(50, 10, "Middle Name:", 1, 0, 'L', false);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $patient->middle_name, 1, 1);
+        $pdf->SetXY($rightX, $pdf->GetY());
+        $pdf->Cell(90, 10, "Date Added: {$patient->date_added}", 0, 1, 'L');
 
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(50, 10, "Gender:", 1, 0, 'L', false);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $patient->gender, 1, 1);
+        $pdf->Ln(10); // Add some space before the line
+    $pdf->SetDrawColor(0, 0, 0); // Black color for the line
+    $pdf->SetLineWidth(0.5); // Line thickness
+    $pdf->Line(10, $pdf->GetY(), 200, $pdf->GetY());
+    $pdf->Ln(10); // Add some space after the line
 
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(50, 10, "Age:", 1, 0, 'L', false);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $patient->age, 1, 1);
+    
+        // Output PDF
+        $pdf->Output("I", "Patient_Record_{$case_no}.pdf");
+    }
+    
 
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(50, 10, "Contact No.:", 1, 0, 'L', false);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $patient->contact_no, 1, 1);
-
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(50, 10, "Date Added:", 1, 0, 'L', false);
-    $pdf->SetFont('Arial', '', 12);
-    $pdf->Cell(0, 10, $patient->date_added, 1, 1);
-
-    // Add footer
-$pdf->SetY(-30); // Move to 30mm from the bottom of the page
-$pdf->SetFont('Arial', 'I', 8); // Set font to Arial, italic, size 8
-$pdf->SetTextColor(128, 128, 128); // Gray color
-$pdf->Cell(0, 10, 'Printed on: ' . date('Y-m-d H:i:s'), 0, 0, 'C'); // Timestamp in the center
-
-// Add signature
-$pdf->Ln(5); // Move slightly below the timestamp
-$pdf->SetFont('Arial', 'B', 10); // Set font to Arial, bold, size 10
-$pdf->SetTextColor(0, 0, 0); // Black color
-$pdf->Cell(0, 10, 'Signed by: John Doe', 0, 0, 'R'); // Signature aligned to the right
-
-    // Output PDF
-    $pdf->Output("I", "Patient_Record_{$case_no}.pdf");
-}
+    
 
     public function deleteRecord($case_no)
     {
