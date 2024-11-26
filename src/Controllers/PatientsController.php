@@ -227,18 +227,16 @@ class PatientsController extends BaseController
     public function printPDF($case_no)
     {
         $patientModel = new Patients();
-        $outpatientModel = new Outpatient();
+
         $patient = $patientModel->find($case_no);
-        $outpatient = $outpatientModel->find($case_number);
+        
     
         // Check if patient exists
         if (!$patient) {
             die("Patient not found or case number invalid!");
         }
         
-        if (!$outpatient) {
-            die("Patient not found or case number invalid!");
-        }
+      
         // Initialize FPDF
         $pdf = new FPDF();
         $pdf->AddPage();

@@ -27,6 +27,7 @@ try {
     $router->post('/update-outpatient/{id}', 'App\Controllers\OutPatientController@updateoutPatient');
     $router->post('/outpatients/delete/{id}', '\App\Controllers\OutPatientController@deleteOutpatientRecord');
     
+    $router->get('/admission-records', 'App\Controllers\AdmissionController@showAdmissionRecords'); 
 
     $router->get('/admission', 'App\Controllers\AdmissionController@index'); // Display admission form
     $router->post('/admission/store', 'App\Controllers\AdmissionController@store'); // Save admission record
@@ -38,7 +39,7 @@ try {
 
     $router->get('/add-doctors', '\App\Controllers\DoctorsController@index');
     $router->post('/add-doctors/store', '\App\Controllers\DoctorsController@store');
-
+    $router->get('/view-doctor/{doctor_id}', '\App\Controllers\DoctorsController@viewDoctor');
     
     
 

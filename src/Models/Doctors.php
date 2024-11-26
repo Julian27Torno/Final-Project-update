@@ -23,13 +23,14 @@ class Doctors extends BaseModel
         $statement = $this->db->prepare($sql);
         $statement->bindParam(':doctor_id', $doctor_id);
         $statement->execute();
-        return $statement->fetch(PDO::FETCH_ASSOC);
+        return $statement->fetch(PDO::FETCH_OBJ);
     }
+    
 
     public function save($data)
     {
-        $sql = "INSERT INTO doctors (doctor_id, first_name, last_name, specialization, contact_no, email) 
-                VALUES (:doctor_id, :first_name, :last_name, :specialization, :contact_no, :email)";
+        $sql = "INSERT INTO doctors (first_name, last_name, specialization, contact_no, email) 
+                VALUES (:first_name, :last_name, :specialization, :contact_no, :email)";
         $statement = $this->db->prepare($sql);
         foreach ($data as $key => $value) {
             $statement->bindValue(":{$key}", $value);

@@ -16,20 +16,37 @@ class AdmissionController extends BaseController
         $patientsModel = new Patients();
         $admissionModel = new Admission();
         $doctorsModel = new Doctors();
-        $admittedPatients = $admissionModel->getAllAdmissions(); // Get admitted patients
+        $admittedPatients = $admissionModel->getActiveAdmissions(); // Get admitted patients
+        // Get past addmitteed patients
         $availableRooms = $admissionModel->getAvailableRooms();  // Get available rooms
         $availablePatients = $patientsModel->getAvailablePatients(); // Use this method to fetch patients
         $availableDoctors = $doctorsModel->getAll();
       
+       
+
+        
         // Pass data to the view
-        echo $this->render('admission-record', [
+        echo $this->render('add-admission', [
             'admitted_patients' => $admittedPatients,
             'available_rooms' => $availableRooms,
             'available_patients' => $availablePatients,
-            'available_doctors' => $availableDoctors
+            'available_doctors' => $availableDoctors,
+            
+          
+            
         ]);
     }
 
+    public function showAdmissionRecords()
+    {
+        $admissionModel = new Admission();
+        $dischargedPatients = $admissionModel->getPastAdmissions();
+        echo $this->render('admission-records', [
+           'discharged_patients' => $dischargedPatients
+        ]);
+          
+        
+    }
     // Handle form submission and save data
     public function store()
     {

@@ -29,7 +29,7 @@ class DoctorsController extends BaseController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'doctor_id' => $_POST['doctor_id'],
+                
                 'first_name' => $_POST['first_name'],
                 'last_name' => $_POST['last_name'],
                 'specialization' => $_POST['specialization'],
@@ -58,5 +58,32 @@ class DoctorsController extends BaseController
             header('Location: /add-doctors?success=Doctor added successfully');
             exit();
         }
+    }
+
+    public function viewDoctor($doctor_id)
+    {
+        $doctorModel = new Doctors();
+
+        // Fetch patient data by case number
+        $doctor = $doctorModel->find($doctor_id);
+
+        // Check if patient exists
+        if (!$doctor) {
+            // Redirect or show an error message
+            header("Location: /doctor?error=doctor not found");
+            exit;
+        }
+
+        // Render the view form with patient data
+        echo $this->render('view-doctors', [
+            'doctor_id' => $doctor->doctor_id,
+            'last_name' => $doctor->last_name,
+            'first_name' => $doctor->first_name,
+            'email' => $doctor->email,
+            'specialization' => $doctor->specialization,
+            'contact_no'=> $doctor->contact_no,
+            'date_added' => $doctor->created_at,
+            
+        ]);
     }
 }

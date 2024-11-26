@@ -30,21 +30,27 @@ class Admission extends BaseModel
     }
 
     // Retrieve all admitted patients
-    public function getAllAdmissions()
-    {
-        $sql = "SELECT 
-                    case_number, 
-                    date_admitted, 
-                    reason, 
-                    room_number, 
-                    attending_physician 
-                FROM admission_records";
+    public function getActiveAdmissions()
+{
+    $sql = "SELECT 
+                a.case_number, 
+                a.date_admitted, 
+                a.reason, 
+                a.room_number, 
+                a.attending_physician,
+                d.first_name AS doctor_first_name,
+                d.last_name AS doctor_last_name
+            FROM admission_records a
+            LEFT JOIN doctors d ON a.attending_physician = d.doctor_id
+            WHERE a.status = 'admitted'
+            ORDER BY a.date_admitted DESC";
 
-        $statement = $this->db->prepare($sql);
-        $statement->execute();
+    $statement = $this->db->prepare($sql);
+    $statement->execute();
 
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
-    }
+    return $statement->fetchAll(PDO::FETCH_ASSOC);
+}
+
     public function getAvailableRooms()
 {
     $sql = "SELECT room_number FROM rooms WHERE status = 'available'";
@@ -107,15 +113,20 @@ public function getRoomByCaseNumber($case_number)
 
 public function removeByCaseNumber($case_number)
 {
-    $sql = "DELETE FROM admission_records WHERE case_number = :case_number";
+    $sql = "UPDATE admission_records 
+            SET status = 'discharged', date_discharged = CURDATE() 
+            WHERE case_number = :case_number";
+
     $statement = $this->db->prepare($sql);
     try {
         $statement->bindParam(':case_number', $case_number, PDO::PARAM_STR);
         $statement->execute();
     } catch (\PDOException $e) {
-        throw new \Exception("Error removing admission record for case number {$case_number}: " . $e->getMessage());
+        throw new \Exception("Error updating discharge record for case number {$case_number}: " . $e->getMessage());
     }
 }
+
+
 
 
 public function markRoomAsAvailable($room_number)
@@ -130,6 +141,67 @@ public function markRoomAsAvailable($room_number)
     }
 }
 
+public function search($query)
+{
+    $sql = "SELECT 
+                a.case_number, 
+                a.date_admitted, 
+                a.reason, 
+                a.room_number, 
+                d.first_name AS doctor_first_name, 
+                d.last_name AS doctor_last_name 
+            FROM admission_records a
+            LEFT JOIN doctors d ON a.attending_physician = d.doctor_id
+            WHERE 
+                a.case_number LIKE :query OR 
+                CONCAT(d.first_name, ' ', d.last_name) LIKE :query";
+
+    $statement = $this->db->prepare($sql);
+    $likeQuery = '%' . $query . '%';
+
+    try {
+        $statement->bindParam(':query', $likeQuery, PDO::PARAM_STR);
+        $statement->execute();
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    } catch (\PDOException $e) {
+        throw new \Exception("Error searching patients: " . $e->getMessage());
+    }
+}
+
+public function getPastAdmissions($searchQuery = '')
+{
+    $sql = "SELECT 
+                a.case_number, 
+                a.room_number, 
+                a.date_admitted, 
+                a.date_discharged, 
+                d.first_name AS doctor_first_name,
+                d.last_name AS doctor_last_name
+            FROM admission_records a
+            LEFT JOIN doctors d ON a.attending_physician = d.doctor_id
+            WHERE a.status = 'discharged'";
+
+    // Append search condition if a query exists
+    if (!empty($searchQuery)) {
+        $sql .= " AND (
+                    a.case_number LIKE :searchQuery OR 
+                    CONCAT(d.first_name, ' ', d.last_name) LIKE :searchQuery
+                  )";
+    }
+
+    $sql .= " ORDER BY a.date_discharged DESC";
+
+    $statement = $this->db->prepare($sql);
+
+    if (!empty($searchQuery)) {
+        $searchTerm = '%' . $searchQuery . '%';
+        $statement->bindParam(':searchQuery', $searchTerm, PDO::PARAM_STR);
+    }
+
+    $statement->execute();
+
+    return $statement->fetchAll(PDO::FETCH_ASSOC);
+}
 
 
 
