@@ -253,7 +253,7 @@ public function updateoutPatient($id)
             }
 
             // Redirect back with a success message
-            header("Location: /patients?success=Outpatient record deleted successfully");
+            header("Location: /out-patient?success=Outpatient record deleted successfully");
             exit();
         } catch (\Exception $e) {
             // Log the error for debugging purposes

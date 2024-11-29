@@ -47,7 +47,7 @@ class PatientsController extends BaseController
                 if (session_status() === PHP_SESSION_NONE) {
                     session_start();
                 }
-
+    
                 // Retrieve form data
                 $lastname = $_POST['lastname'] ?? '';
                 $firstname = $_POST['firstname'] ?? '';
@@ -61,15 +61,15 @@ class PatientsController extends BaseController
                 $mobile = $_POST['mobile'] ?? '';
                 $religion = $_POST['religion'] ?? '';
                 $occupation = $_POST['occupation'] ?? '';
-
+    
                 // Validate required fields
                 if (empty($lastname) || empty($firstname) || empty($address) || empty($age) || empty($birthday) || empty($mobile)) {
                     throw new Exception("Please fill in all required fields.");
                 }
-
+    
                 // Initialize the Patients model
                 $patientsModel = new Patients();
-
+    
                 // Prepare data array
                 $patientData = [
                     'lastname' => $lastname,
@@ -85,10 +85,10 @@ class PatientsController extends BaseController
                     'religion' => $religion,
                     'occupation' => $occupation
                 ];
-
+    
                 // Insert the new record into the database
                 $result = $patientsModel->insert($patientData);
-
+    
                 if ($result) {
                     // Log the action
                     if (isset($_SESSION['user_id'])) {
@@ -102,15 +102,17 @@ class PatientsController extends BaseController
                     } else {
                         error_log("Warning: user_id is not set in session. Action not logged.");
                     }
-
-                    // Redirect to the patients list page with success message
-                    header("Location: /patients?success=Record added successfully.");
+    
+                    // Redirect to the success page
+                    echo $this->render('patients-success', [
+                        'success' => "Patient {$firstname} {$lastname} has been successfully added!"
+                    ]);
                     exit;
                 } else {
                     throw new Exception("Failed to add patient record.");
                 }
             }
-
+    
             // Render the add-records form if the request is GET
             echo $this->render('add-records');
         } catch (Exception $e) {
@@ -118,6 +120,7 @@ class PatientsController extends BaseController
             echo $this->render('add-records', ['error' => 'Failed to add patient record. Please try again.']);
         }
     }
+    
 
     public function editPatient($case_no)
     {

@@ -1,3 +1,5 @@
+
+
 <!doctype html>
 <html lang="en">
 
@@ -128,9 +130,31 @@
         </ul>
 
         <div class="tab-content">
+         <div class="alert alert-success {{^success}}d-none{{/success}}" role="alert">
+        <ul class="mb-0">
+          <!-- Success Alert -->
+            {{#success}}
+            <li>{{.}}</li>
+            {{/success}}
+        </ul>
+    </div>
             <!-- Admission Form -->
             <div class="tab-pane fade show active" id="admission-form" role="tabpanel" aria-labelledby="admission-form-tab">
-                <h3>Add Admitted Patients</h3>
+                <h3>Admit Patients</h3>
+
+
+<!-- Error Alert -->
+{{#errors}}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <ul class="mb-0">
+        {{#.}}
+        <li>{{.}}</li>
+        {{/.}}
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/errors}}
+
                 <form action="/admission/store" method="POST">
                     <div class="row mb-3">
                         <div class="col-md-6">

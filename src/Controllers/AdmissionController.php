@@ -40,34 +40,46 @@ class AdmissionController extends BaseController
     public function showAdmissionRecords()
     {
         $admissionModel = new Admission();
-        $dischargedPatients = $admissionModel->getPastAdmissions();
+    
+        // Fetch the search query from GET, defaulting to an empty string
+        $searchQuery = $_GET['search'] ?? '';
+    
+        // Fetch records based on the query
+        $dischargedPatients = $admissionModel->search($searchQuery);
+    
+        // Render the view
         echo $this->render('admission-records', [
-           'discharged_patients' => $dischargedPatients
+            'discharged_patients' => $dischargedPatients,
+            'search_query' => $searchQuery,
         ]);
-          
-        
     }
+    
     // Handle form submission and save data
     public function store()
-    {
-        // Start the session if not already started
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+{
+    // Start the session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $data = [
-                'case_number' => $_POST['case_number'],
-                'date_admitted' => $_POST['date_admitted'],
-                'reason' => $_POST['reason'],
-                'room_number' => $_POST['room_number'],
-                'attending_physician' => $_POST['attending_physician'],
-            ];
+    // Check if the form is submitted
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = [
+            'case_number' => $_POST['case_number'],
+            'date_admitted' => $_POST['date_admitted'],
+            'reason' => $_POST['reason'],
+            'room_number' => $_POST['room_number'],
+            'attending_physician' => $_POST['attending_physician'],
+        ];
 
-            $admissionModel = new Admission();
+        // Create an instance of the Admission model
+        $admissionModel = new Admission();
+
+        try {
+            // Save the admission record to the database
             $admissionModel->save($data);
 
-            // Mark the selected room as unavailable
+            // Mark the room as unavailable
             $admissionModel->markRoomAsUnavailable($data['room_number']);
 
             // Log the action
@@ -83,11 +95,22 @@ class AdmissionController extends BaseController
                 error_log("Warning: user_id is not set in session. Action not logged.");
             }
 
-            // Redirect back to the form with a success message
-            header('Location: /admission?success=Record added successfully');
-            exit();
+            // Redirect to the success page with a success message
+            return $this->render('admit-success', [
+                'success' => 'Admission record added successfully!'
+            ]);
+        } catch (\Exception $e) {
+            // If needed, log the error and display a generic error message
+            error_log("Error during admission: " . $e->getMessage());
+
+            // Redirect with a generic error message (optional, if you want to show an error page)
+            return $this->render('admit-success', [
+                'success' => 'There was an issue processing the admission. Please try again later.'
+            ]);
         }
     }
+}
+
 
     // Discharge a patient and release their room
     public function discharge($case_number)

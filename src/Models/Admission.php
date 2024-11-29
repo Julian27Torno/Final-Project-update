@@ -143,24 +143,47 @@ public function markRoomAsAvailable($room_number)
 
 public function search($query)
 {
-    $sql = "SELECT 
-                a.case_number, 
-                a.date_admitted, 
-                a.reason, 
-                a.room_number, 
-                d.first_name AS doctor_first_name, 
-                d.last_name AS doctor_last_name 
-            FROM admission_records a
-            LEFT JOIN doctors d ON a.attending_physician = d.doctor_id
-            WHERE 
-                a.case_number LIKE :query OR 
-                CONCAT(d.first_name, ' ', d.last_name) LIKE :query";
+    // Check if the query is empty
+    if (trim($query) === '') {
+        $sql = "SELECT 
+                    a.case_number, 
+                    a.room_number, 
+                    a.date_admitted, 
+                    p.first_name AS patient_first_name, 
+                    p.last_name AS patient_last_name, 
+                    d.first_name AS doctor_first_name, 
+                    d.last_name AS doctor_last_name
+                FROM admission_records a
+                LEFT JOIN patients p ON a.case_number = p.case_no
+                LEFT JOIN doctors d ON a.attending_physician = d.doctor_id";
+    } else {
+        // If query is not empty, perform search
+        $sql = "SELECT 
+                    a.case_number, 
+                    a.room_number, 
+                    a.date_admitted, 
+                    p.first_name AS patient_first_name, 
+                    p.last_name AS patient_last_name, 
+                    d.first_name AS doctor_first_name, 
+                    d.last_name AS doctor_last_name
+                FROM admission_records a
+                LEFT JOIN patients p ON a.case_number = p.case_no
+                LEFT JOIN doctors d ON a.attending_physician = d.doctor_id
+                WHERE p.first_name LIKE :query 
+                   OR p.last_name LIKE :query 
+                   OR CONCAT(p.first_name, ' ', p.last_name) LIKE :query
+                   OR a.room_number LIKE :query
+                   OR CONCAT(d.first_name, ' ', d.last_name) LIKE :query";
+    }
 
     $statement = $this->db->prepare($sql);
-    $likeQuery = '%' . $query . '%';
+
+    if (trim($query) !== '') {
+        $likeQuery = '%' . $query . '%';
+        $statement->bindParam(':query', $likeQuery, PDO::PARAM_STR);
+    }
 
     try {
-        $statement->bindParam(':query', $likeQuery, PDO::PARAM_STR);
         $statement->execute();
         return $statement->fetchAll(PDO::FETCH_ASSOC);
     } catch (\PDOException $e) {
@@ -168,7 +191,10 @@ public function search($query)
     }
 }
 
-public function getPastAdmissions($searchQuery = '')
+
+
+
+public function getPastAdmissions()
 {
     $sql = "SELECT 
                 a.case_number, 

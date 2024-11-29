@@ -16,8 +16,8 @@ try {
 
     
 
-    $router->get('/registration-form', '\App\Controllers\RegistrationController@showForm');
-    $router->post('/register', '\App\Controllers\RegistrationController@register');
+    $router->get('/users', '\App\Controllers\RegistrationController@showForm');
+    $router->post('/user-added', '\App\Controllers\RegistrationController@register');
 
     $router->get('/outpatient', '\App\Controllers\OutPatientController@index'); // Main route to display the form and records
     $router->post('/outpatient/store', '\App\Controllers\OutPatientController@store'); // Route to handle form submission
@@ -40,13 +40,18 @@ try {
     $router->get('/add-doctors', '\App\Controllers\DoctorsController@index');
     $router->post('/add-doctors/store', '\App\Controllers\DoctorsController@store');
     $router->get('/view-doctor/{doctor_id}', '\App\Controllers\DoctorsController@viewDoctor');
-    
-    
+    $router->get('/edit-doctor/{doctor_id}', '\App\Controllers\DoctorsController@editDoctor');
+    $router->post('/doctors/delete/{doctor_id}', '\App\Controllers\DoctorsController@deleteDoctor');
+    $router->post('/doctors/update/{doctor_id}', 'App\Controllers\DoctorsController@updateDoctor');
 
     $router->get('/print-pdf/{case_no}', '\App\Controllers\PatientsController@printPDF');
 
 
+    $router->get('/add-users', '\App\Controllers\AddUserController@showAddUserForm');
 
+
+    $router->post('/add-user/store', '\App\Controllers\UserController@store');
+    
     
     $router->post('/login', '\App\Controllers\LoginController@login');
     $router->get('/dashboard', '\App\Controllers\LoginController@showDashboard');// Route for the welcome page after login

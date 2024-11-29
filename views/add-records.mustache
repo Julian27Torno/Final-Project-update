@@ -173,11 +173,13 @@
     <div class="row g-3 mb-3">
         <div class="col-md-3">
             <label for="age" class="form-label">Age</label>
-            <input type="number" id="age" name="age" class="form-control" placeholder="Age" required>
+<input type="text" id="age" class="form-control" name="age" readonly>
+
         </div>
         <div class="col-md-3">
             <label for="birthday" class="form-label">Birthday</label>
-            <input type="date" id="birthday" name="birthday" class="form-control" required>
+            <input type="date" id="birthday" class="form-control" name="birthday">
+
         </div>
         <div class="col-md-3">
             <label for="birthplace" class="form-label">Birthplace</label>
@@ -227,6 +229,22 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Function to calculate age based on the given date of birth
+        function calculateAge(birthday) {
+            let birthDate = new Date(birthday);
+            let ageDiff = Date.now() - birthDate.getTime();
+            let ageDate = new Date(ageDiff);
+            return Math.abs(ageDate.getUTCFullYear() - 1970);
+        }
+
+        // Update age field automatically
+        document.getElementById("birthday").addEventListener("change", function() {
+            let birthday = this.value;
+            let age = calculateAge(birthday);
+            document.getElementById("age").value = age;
+        });
+    </script>
 </body>
 
 </html>

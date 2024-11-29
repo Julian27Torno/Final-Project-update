@@ -122,13 +122,13 @@
      <div class="content">
             <div class="container-fluid">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1>Patient Record Management</h1>
+                    <h1>Admission Record</h1>
                   
                 </div>
 
                 <div class="table-container">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h2>Patient Records Table</h2>
+                        <h2>Past Admitted Patients</h2>
                         <!-- Add New Record Button -->
                         <a href="/add-records" class="btn btn-outline-secondary">
                             <i class="fa fa-plus"></i>
@@ -140,17 +140,13 @@
                         <table class="table table-striped table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Case No.</th>
-                                    <th>Last Name</th>
-                                    <th>First Name</th>
-                                    <th>Middle Name</th>
-                                    <th>Gender</th>
-                                    <th>Age</th>
-                                    <th>Contact No.</th>
-                                    <th>Date Added</th>
-                                    <th>Action</th>
+                                    <th>Patient Name</th>
+                                    <th>Room No.</th>
+                                    <th>Date admitted</th>
+                                    <th>Attending Physician</th>
+                                    
                                     <th>
-                                        <form action="/patients" method="get" class="d-flex">
+                                        <form action="/admission-records" method="get" class="d-flex">
                                             <input 
                                                 type="text" 
                                                 name="search" 
@@ -164,29 +160,22 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{#patients}}
+                                {{#discharged_patients}}
                                 <tr>
-                                    <td>P-{{case_no}}</td>
-                                    <td>{{last_name}}</td>
-                                    <td>{{first_name}}</td>
-                                    <td>{{middle_name}}</td>
-                                    <td>{{gender}}</td>
-                                    <td>{{age}}</td>
-                                    <td>{{contact_no}}</td>
-                                    <td>{{date_added}}</td>
-                                    <td class="table-actions">
-                                        <a href="/edit-patient/{{case_no}}" class="btn btn-edit btn-sm">Edit</a>
-                                        <a href="/view-patient/{{case_no}}" class="btn btn-view btn-sm">View</a>
-                                         <a href="/print-pdf/{{case_no}}" class="btn btn-danger btn-sm">Print PDF</a>
+                                   
                                          
-                                    </td>
+                                      <td>{{patient_first_name}} {{patient_last_name}}</td>
+        <td>{{room_number}}</td>
+        <td>{{date_admitted}}</td>
+        <td>DR. {{doctor_first_name}} {{doctor_last_name}}</td>
+        <td>
                                 </tr>
-                                {{/patients}}
-                                {{^patients}}
+                                {{/discharged_patients}}
+                                {{^discharged_patients}}
                                 <tr>
                                     <td colspan="9" class="text-center">No patients found.</td>
                                 </tr>
-                                {{/patients}}
+                                {{/discharged_patients}}
                             </tbody>
                         </table>
                     </div>
