@@ -92,7 +92,7 @@ class LoginController extends BaseController
 
         // If user is not logged in, redirect to login
         if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
-            header("Location: /login-form");
+            header("Location: /dashboard");
             exit();
         }
 
