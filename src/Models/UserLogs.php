@@ -15,7 +15,15 @@ class UserLogs extends BaseModel
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
+    public function getLogsCount()
+    {
+        $sql = "SELECT COUNT(*) as count FROM user_logs";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['count'];
+    }
+    
     // Add a new log entry
     public function addLog($data)
     {

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\User;
 use App\Models\Patients;
+use App\Models\UserLogs;
 
 class LoginController extends BaseController
 {
@@ -85,40 +86,39 @@ class LoginController extends BaseController
         }
     }
 
-    public function showDashboard()
+     public function showDashboard()
     {
         // Start session to verify login status
         session_start();
-
+    
         // If user is not logged in, redirect to login
         if (!isset($_SESSION['is_logged_in']) || $_SESSION['is_logged_in'] !== true) {
             header("Location: /dashboard");
             exit();
         }
-
+    
         // Fetch patient data
         $patientsModel = new Patients();
         $totalPatients = count($patientsModel->getAll());
-        $newPatientsToday = $patientsModel->getNewPatientsToday(); // Implement this method in your model
+        $newPatientsToday = $patientsModel->getNewPatientsToday();
         $recentPatients = array_slice($patientsModel->getAll(), -5);
-        
-        // Patient trends for the last 7 days
-        $trendDates = [];
-        $trendValues = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-$i days"));
-            $trendDates[] = $date;
-            $trendValues[] = $patientsModel->getCountByDate($date); // Implement this method in your model
-        }
-
+    
+        // Fetch room data
+      
+    
+     
+        $userLogsModel = new UserLogs();
+       
+        $userLogsCount = $userLogsModel->getLogsCount(); // Get total log count
+    
         // Render the dashboard view with the necessary data
         echo $this->render('dashboard', [
             'username' => $_SESSION['username'] ?? 'Guest',
             'total_patients' => $totalPatients,
             'new_patients_today' => $newPatientsToday,
             'recent_patients' => $recentPatients,
-            'trend_dates' => json_encode($trendDates),
-            'trend_values' => json_encode($trendValues),
+            
+            'user_logs_count' => $userLogsCount,     // Pass total log count
         ]);
     }
 
